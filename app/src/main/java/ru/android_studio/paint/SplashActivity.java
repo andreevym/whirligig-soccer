@@ -1,24 +1,24 @@
 package ru.android_studio.paint;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 
 /**
  * Заставка на экране перед загруженным приложением
  */
-public class SplashActivity extends AppCompatActivity {
+public class SplashActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.splash);
+
         startHeavyProcessing();
 
     }
 
-    private void startHeavyProcessing(){
+    private void startHeavyProcessing() {
         new LongOperation().execute("");
     }
 
@@ -27,7 +27,7 @@ public class SplashActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... params) {
             //some heavy processing resulting in a Data String
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 1; i++) {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -45,9 +45,11 @@ public class SplashActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPreExecute() {}
+        protected void onPreExecute() {
+        }
 
         @Override
-        protected void onProgressUpdate(Void... values) {}
+        protected void onProgressUpdate(Void... values) {
+        }
     }
 }
