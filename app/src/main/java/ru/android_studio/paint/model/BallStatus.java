@@ -4,7 +4,7 @@ package ru.android_studio.paint.model;
  * Created by yuryandreev on 24/03/2017.
  */
 
-public enum BallActionStatus {
+public enum BallStatus {
     WAITING,
     JUMP_UP,
     JUMP_DOWN;
