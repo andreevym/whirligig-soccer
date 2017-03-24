@@ -3,7 +3,7 @@ package ru.android_studio.paint.activity;
 import android.app.Activity;
 import android.os.Bundle;
 
-import ru.android_studio.paint.view.DrawingView;
+import ru.android_studio.paint.view.GameScreenView;
 
 /**
  * This is demo code to accompany the Mobiletuts+ tutorial series:
@@ -16,7 +16,7 @@ public class GameActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DrawingView dv = new DrawingView(this);
+        GameScreenView dv = new GameScreenView(this);
         setContentView(dv);
     }
 }

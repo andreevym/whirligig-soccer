@@ -12,11 +12,11 @@ import android.view.View;
 
 import ru.android_studio.paint.R;
 
-import static ru.android_studio.paint.view.DrawingView.BallActionStatus.JUMP_DOWN;
-import static ru.android_studio.paint.view.DrawingView.BallActionStatus.JUMP_UP;
-import static ru.android_studio.paint.view.DrawingView.BallActionStatus.WAITING;
+import static ru.android_studio.paint.view.GameScreenView.BallActionStatus.JUMP_DOWN;
+import static ru.android_studio.paint.view.GameScreenView.BallActionStatus.JUMP_UP;
+import static ru.android_studio.paint.view.GameScreenView.BallActionStatus.WAITING;
 
-public class DrawingView extends View {
+public class GameScreenView extends View {
 
     private static final String push = "вы набили %s очков";
     private static final String miss = "промахов %s";
@@ -136,7 +136,7 @@ public class DrawingView extends View {
      */
     private float ballEndY;
 
-    public DrawingView(Context context) {
+    public GameScreenView(Context context) {
         super(context);
 
         ballStatus = WAITING;
