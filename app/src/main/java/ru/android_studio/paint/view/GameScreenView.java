@@ -11,10 +11,10 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import ru.android_studio.paint.R;
-
-import static ru.android_studio.paint.view.GameScreenView.BallActionStatus.JUMP_DOWN;
-import static ru.android_studio.paint.view.GameScreenView.BallActionStatus.JUMP_UP;
-import static ru.android_studio.paint.view.GameScreenView.BallActionStatus.WAITING;
+import ru.android_studio.paint.model.BallActionStatus;
+import ru.android_studio.paint.model.Level;
+import ru.android_studio.paint.service.LevelService;
+import ru.android_studio.paint.service.ViewService;
 
 public class GameScreenView extends View {
 
@@ -114,7 +114,7 @@ public class GameScreenView extends View {
     /**
      * Статус объекта который пинаем на текущий момент
      */
-    private BallActionStatus ballStatus;
+    private BallActionStatus ballActionStatus;
     /**
      * Нужно чтобы объект вернулся на туже точку откуда его удалили
      * Координата по X
@@ -136,26 +136,15 @@ public class GameScreenView extends View {
      */
     private float ballEndY;
 
+    private LevelService levelService = new LevelService();
+    private ViewService viewService = new ViewService();
+
     public GameScreenView(Context context) {
         super(context);
 
-        ballStatus = WAITING;
+        ballActionStatus = BallActionStatus.WAITING;
         pushMsg = String.format(push, pushCount);
         missMsg = String.format(miss, missCount);
-    }
-
-    private Bitmap getFootwearByDrawable(int drawableBashmak){
-        Bitmap resourceBashmak = BitmapFactory.decodeResource(getResources(), drawableBashmak);
-        int bashmakWidth = resourceBashmak.getWidth() / 3;
-        int bashmakHeight = resourceBashmak.getHeight() / 3;
-        pathX = bashmakWidth;
-        return Bitmap.createScaledBitmap(resourceBashmak, bashmakWidth, bashmakHeight, false);
-    }
-
-    private Bitmap getBallByDrawable(int drawableBall){
-        Bitmap resourceBall = BitmapFactory.decodeResource(getResources(), drawableBall);
-        // ballBitmap = Bitmap.createScaledBitmap(ballBitmapBitmap, ballBitmapBitmap.getWidth() / 5, ballBitmapBitmap.getHeight() / 5, false);
-        return Bitmap.createScaledBitmap(resourceBall, resourceBall.getWidth() / 8, resourceBall.getHeight() / 8, false);
     }
 
     private Bitmap getBabkaByDrawable(int drawableBabka){
@@ -171,11 +160,12 @@ public class GameScreenView extends View {
         System.out.println("DrawingView: H ::::: " + getHeight());
         System.out.println("DrawingView: W ::::: " + getWidth());
 
+        // prepare images dependencies from level
+        levelHandler();
+
         Bitmap scaleTractoristoBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.tractoristo300);
         tractoristoBitmap = Bitmap.createScaledBitmap(scaleTractoristoBitmap, getWidth() - 50, getHeight() - 150, false);
         babkaBitmap = getBabkaByDrawable(R.drawable.babka);
-
-        changeLevel();
 
         ballX = getWidth() / 2 - (ballBitmap.getWidth() / 2);
         ballY = getHeight() - ballBitmap.getHeight();
@@ -218,7 +208,9 @@ public class GameScreenView extends View {
                         assert1Y && assert2Y) {
                     System.out.println("УДАР!!!");
                     pushCount++;
-                    changeLevel();
+
+                    levelHandler();
+
                     pushMsg = String.format(push, pushCount);
 
                     currentAngleBashmak = startAngleBashmak;
@@ -233,7 +225,7 @@ public class GameScreenView extends View {
 
                     ballEndX = currentActionX + ballJumpHeightX;
                     ballEndY = currentActionY + ballJumpHeightY;
-                    ballStatus = JUMP_UP;
+                    ballActionStatus = BallActionStatus.JUMP_UP;
 
                     printFlyPrams();
                 } else {
@@ -263,6 +255,13 @@ public class GameScreenView extends View {
         return true;
     }
 
+    private void levelHandler() {
+        Level level = levelService.changeLevel(pushCount);
+        ballBitmap = viewService.getBallByDrawable(level.getImageBall(), getResources());
+        footwearBitmap = viewService.getFootwearByDrawable(level.getImageFootwear(), getResources());
+        pathX = footwearBitmap.getWidth();
+    }
+
     private void printFlyPrams() {
         System.out.println("PrintFlyPrams");
 
@@ -272,13 +271,13 @@ public class GameScreenView extends View {
         System.out.println("FLY PARAMS:::: ballY: " + ballY);
         System.out.println("FLY PARAMS:::: ballEndY: " + ballEndY);
 
-        System.out.println("FLY PARAMS:::: ballStatus: " + ballStatus);
+        System.out.println("FLY PARAMS:::: ballActionStatus: " + ballActionStatus);
         System.out.println("FLY PARAMS:::: ballReturnToPoitY: " + ballReturnToPoitY);
     }
 
     @Override
     public void onDraw(Canvas canvas) {
-        System.out.println("currentLevel: " + currentLevel);
+        System.out.println("currentLevel: " + levelService.getCurrentLevel());
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
         paint.setColor(Color.BLACK);
@@ -296,7 +295,7 @@ public class GameScreenView extends View {
             return;
         }
 
-        if (ballStatus.isJumped()) {
+        if (ballActionStatus.isJumped()) {
             printFlyPrams();
 
 
@@ -308,32 +307,32 @@ public class GameScreenView extends View {
 
             int speed = (pushCount + DEFAULT_START_SPEED) / 10 + 1;
 
-            if (intBallEndY > intBallY && ballStatus == JUMP_UP) {
+            if (intBallEndY > intBallY && ballActionStatus == BallActionStatus.JUMP_UP) {
                 System.out.println("Y UP");
                 this.ballY -= speed;
-            } else if (intBallEndY > intBallY && ballStatus == JUMP_DOWN) {
+            } else if (intBallEndY > intBallY && ballActionStatus == BallActionStatus.JUMP_DOWN) {
                 System.out.println("Y DOWN");
                 this.ballY += speed;
             }
 
-            if (intBallEndX > intBallX && ballStatus == JUMP_UP) {
+            if (intBallEndX > intBallX && ballActionStatus == BallActionStatus.JUMP_UP) {
                 System.out.println("X UP");
                 this.ballX += speed;
-            } else if (intBallEndX < intBallX && ballStatus == JUMP_DOWN) {
+            } else if (intBallEndX < intBallX && ballActionStatus == BallActionStatus.JUMP_DOWN) {
                 System.out.println("X DOWN");
                 this.ballX -= speed;
             }
 
-            if (intBallX <= intBallEndX && ballStatus == JUMP_DOWN &&
-                    intBallY >= intBallEndY && ballStatus == JUMP_DOWN) {
-                ballStatus = WAITING;
-                System.out.println("ALL WAITING");
-            } else if (intBallX >= intBallEndX && ballStatus == JUMP_UP &&
-                    intBallY <= 0 && ballStatus == JUMP_UP) {
+            if (intBallX <= intBallEndX && ballActionStatus == BallActionStatus.JUMP_DOWN &&
+                    intBallY >= intBallEndY && ballActionStatus == BallActionStatus.JUMP_DOWN) {
+                ballActionStatus = BallActionStatus.WAITING;
+                System.out.println("ALL BallActionStatus.WAITING");
+            } else if (intBallX >= intBallEndX && ballActionStatus == BallActionStatus.JUMP_UP &&
+                    intBallY <= 0 && ballActionStatus == BallActionStatus.JUMP_UP) {
                 this.ballEndX = ballReturnToPoitX;
                 this.ballEndY = ballReturnToPoitY;
-                ballStatus = JUMP_DOWN;
-                System.out.println("ALL JUMP_DOWN");
+                ballActionStatus = BallActionStatus.JUMP_DOWN;
+                System.out.println("ALL BallActionStatus.JUMP_DOWN");
             }
         }
 
@@ -395,7 +394,7 @@ public class GameScreenView extends View {
 
         if (ballBitmap != null) {
             canvas.save(); //Save the position of the canvas.
-            if (ballStatus.isJumped()) {
+            if (ballActionStatus.isJumped()) {
                 //canvas.rotate(angle, ballX, ballY); //Rotate the canvas.
                 //lastAngle = angle;
             } else {
@@ -406,68 +405,5 @@ public class GameScreenView extends View {
         }
     }
 
-    enum BallActionStatus {
-        WAITING,
-        JUMP_UP,
-        JUMP_DOWN;
 
-        public boolean isJumped() {
-            return this == JUMP_UP || this == JUMP_DOWN;
-        }
-    }
-
-    private Level currentLevel;
-
-    private boolean changeLevel() {
-        Level newLevel = Level.getLevelByPushCount(pushCount);
-        if(newLevel != null) {
-            changeLevel(newLevel);
-            return true;
-        }
-
-        return false;
-    }
-
-    private void changeLevel(Level newLevel) {
-        currentLevel = newLevel;
-
-        ballBitmap = getBallByDrawable(currentLevel.imageBall);
-        footwearBitmap = getFootwearByDrawable(currentLevel.imageFootwear);
-    }
-
-    enum Level {
-        SCHOOLBOY("Уровень 1 школьник - пинает хуй", 0, R.drawable.football, R.drawable.bashmak),
-        NEXT_1("NEXT", 2, R.drawable.football, R.drawable.bashmak),
-        NEXT_2("басота - босоногий мальчуган", 5, R.drawable.football, R.drawable.bashmak),
-        NEXT_3("носки", 7, R.drawable.football, R.drawable.bashmak),
-        NEXT_4("равные кеды", 10, R.drawable.football, R.drawable.bashmak),
-        NEXT_5("кеды", 14, R.drawable.football, R.drawable.bashmak),
-        NEXT_6("буцы", 16, R.drawable.football, R.drawable.bashmak),
-        RONALDO("Уровень 3 роналдо - золотая буца", 20, R.drawable.football, R.drawable.bashmak),
-        MESSI("Уровень 4 Месси - золотой мяч", 25, R.drawable.football, R.drawable.bashmak),
-        ZIDAN("Уровнеь 5 Зидан бьет головой Матерацци", 27, R.drawable.football, R.drawable.bashmak),
-        UNKNOWN("UNKNOWN", -1, R.drawable.football, R.drawable.bashmak);
-
-        final String title;
-        final int pushCount;
-
-        final int imageBall;
-        final int imageFootwear;
-
-        Level(String title, int pushCount, int imageBall, int imageFootwear) {
-            this.title = title;
-            this.pushCount = pushCount;
-            this.imageBall = imageBall;
-            this.imageFootwear = imageFootwear;
-        }
-
-        public static Level getLevelByPushCount(int pushCount) {
-            for (Level level : values()) {
-                if(pushCount == level.pushCount) {
-                    return level;
-                }
-            }
-            return UNKNOWN;
-        }
-    }
 }
