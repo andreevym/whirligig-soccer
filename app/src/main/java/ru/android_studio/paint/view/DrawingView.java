@@ -1,4 +1,4 @@
-package ru.android_studio.paint;
+package ru.android_studio.paint.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -10,9 +10,11 @@ import android.media.MediaPlayer;
 import android.view.MotionEvent;
 import android.view.View;
 
-import static ru.android_studio.paint.DrawingView.BallActionStatus.JUMP_DOWN;
-import static ru.android_studio.paint.DrawingView.BallActionStatus.JUMP_UP;
-import static ru.android_studio.paint.DrawingView.BallActionStatus.WAITING;
+import ru.android_studio.paint.R;
+
+import static ru.android_studio.paint.view.DrawingView.BallActionStatus.JUMP_DOWN;
+import static ru.android_studio.paint.view.DrawingView.BallActionStatus.JUMP_UP;
+import static ru.android_studio.paint.view.DrawingView.BallActionStatus.WAITING;
 
 public class DrawingView extends View {
 
@@ -435,9 +437,9 @@ public class DrawingView extends View {
 
     enum Level {
         SCHOOLBOY("Уровень 1 школьник - пинает хуй", 0, R.drawable.football, R.drawable.bashmak),
-        NEXT_1("NEXT", 2, R.drawable.football, R.drawable.football),
-        NEXT_2("басота - босоногий мальчуган", 5, R.drawable.football, R.drawable.bosonogii),
-        NEXT_3("носки", 7, R.drawable.football, R.drawable.noski),
+        NEXT_1("NEXT", 2, R.drawable.football, R.drawable.bashmak),
+        NEXT_2("басота - босоногий мальчуган", 5, R.drawable.football, R.drawable.bashmak),
+        NEXT_3("носки", 7, R.drawable.football, R.drawable.bashmak),
         NEXT_4("равные кеды", 10, R.drawable.football, R.drawable.bashmak),
         NEXT_5("кеды", 14, R.drawable.football, R.drawable.bashmak),
         NEXT_6("буцы", 16, R.drawable.football, R.drawable.bashmak),

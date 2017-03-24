@@ -1,15 +1,9 @@
-package ru.android_studio.paint;
+package ru.android_studio.paint.activity;
 
 import android.app.Activity;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.Bundle;
-import android.view.MotionEvent;
-import android.view.View;
+
+import ru.android_studio.paint.view.DrawingView;
 
 /**
  * This is demo code to accompany the Mobiletuts+ tutorial series:
@@ -18,7 +12,7 @@ import android.view.View;
  * Sue Smith
  * August 2013
  */
-public class MainActivity extends Activity {
+public class GameActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

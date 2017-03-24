@@ -1,4 +1,4 @@
-package ru.android_studio.paint;
+package ru.android_studio.paint.activity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -27,7 +27,7 @@ public class SplashActivity extends Activity {
         @Override
         protected String doInBackground(String... params) {
             //some heavy processing resulting in a Data String
-            for (int i = 0; i < 1; i++) {
+            for (int i = 0; i < 2; i++) {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -39,7 +39,7 @@ public class SplashActivity extends Activity {
 
         @Override
         protected void onPostExecute(String result) {
-            Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+            Intent intent = new Intent(SplashActivity.this, GameActivity.class);
             startActivity(intent);
             finish();
         }
