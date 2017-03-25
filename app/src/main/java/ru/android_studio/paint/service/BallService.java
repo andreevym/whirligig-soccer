@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 
 import ru.android_studio.paint.model.BallStatus;
+import ru.android_studio.paint.model.Level;
 
 /**
  * Управление мячом
@@ -64,7 +65,10 @@ public class BallService {
      */
     private float ballEndY;
 
-    private static final int DEFAULT_START_SPEED = 50;
+    /**
+     * Картинка - что бьем
+     */
+    private Bitmap ballBitmap;
 
     public void init() {
         ballStatus = BallStatus.WAITING;
@@ -87,9 +91,9 @@ public class BallService {
         }
     }
 
-    public void load(int width, int height, int ballWidth, int ballHeight){
-        ballX = width / 2 - (ballWidth / 2);
-        ballY = height - ballHeight;
+    public void load(int width, int height){
+        ballX = width / 2 - (ballBitmap.getWidth() / 2);
+        ballY = height - ballBitmap.getHeight();
         ballReturnToPoitY = ballY;
         ballReturnToPoitX = ballX;
     }
@@ -105,12 +109,12 @@ public class BallService {
     }
 
 
-    public boolean isClickOnBall(float clickX, float clickY, int ballWidth, int ballHeight) {
+    public boolean isClickOnBall(float clickX, float clickY) {
         boolean assert1X = this.ballX <= clickX;
-        boolean assert2X = clickX <= (this.ballX + (float) ballWidth);
+        boolean assert2X = clickX <= (this.ballX + (float) ballBitmap.getWidth());
 
         boolean assert1Y = this.ballY <= clickY;
-        boolean assert2Y = clickY <= (this.ballY + (float) ballHeight);
+        boolean assert2Y = clickY <= (this.ballY + (float) ballBitmap.getHeight());
         return assert1X && assert2X && assert1Y && assert2Y;
     }
 
@@ -127,6 +131,8 @@ public class BallService {
         System.out.println("FLY PARAMS:::: ballReturnToPoitY: " + ballReturnToPoitY);
     }
 
+    private SpeedService speedService = new SpeedService();
+
     public void draw(int pushedCount) {
         int intBallX = (int) this.ballX;
         int intBallEndX = (int) this.ballEndX;
@@ -134,7 +140,7 @@ public class BallService {
         int intBallY = (int) this.ballY;
         int intBallEndY = (int) this.ballEndY;
 
-        int speed = (pushedCount + DEFAULT_START_SPEED) / 10 + 1;
+        int speed = speedService.getSpeed(pushedCount);
 
         if (intBallEndY > intBallY && ballStatus == BallStatus.JUMP_UP) {
             System.out.println("Y UP");
@@ -163,5 +169,13 @@ public class BallService {
             ballStatus = BallStatus.JUMP_DOWN;
             System.out.println("ALL BallStatus.JUMP_DOWN");
         }
+    }
+
+    public void setBallBitmap(Bitmap ballBitmap) {
+        this.ballBitmap = ballBitmap;
+    }
+
+    public Bitmap getBallBitmap() {
+        return ballBitmap;
     }
 }

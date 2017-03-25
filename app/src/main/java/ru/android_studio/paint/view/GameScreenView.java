@@ -1,62 +1,31 @@
 package ru.android_studio.paint.view;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.media.MediaPlayer;
+import android.support.annotation.NonNull;
 import android.view.MotionEvent;
 import android.view.View;
 
-import ru.android_studio.paint.R;
 import ru.android_studio.paint.model.Level;
 import ru.android_studio.paint.service.BallService;
+import ru.android_studio.paint.service.EndGameService;
+import ru.android_studio.paint.service.FootwearService;
 import ru.android_studio.paint.service.LevelService;
 import ru.android_studio.paint.service.MonitoringService;
 import ru.android_studio.paint.service.ViewService;
 
 public class GameScreenView extends View {
 
-    private static final int startAngleBashmak = 50;
-    private static final int endAngleBashmak = 0;
-    /**
-     * Расположение объекта который пинаем по X
-     */
-    private static float currentXBashmak;
-    /**
-     * Расположение объекта который пинаем по Y
-     */
-    private static float currentYBashmak;
-    private static float endXBashmak;
-    private static int pathX;
-    private static int currentAngleBashmak = startAngleBashmak;
-    private static boolean isBashmakInAction = false;
     float x, y;
-
-    /**
-     * Картинка - что бьем
-     */
-    private Bitmap ballBitmap;
-    /**
-     * Картинка - чем бьем
-     */
-    private Bitmap footwearBitmap;
-    /**
-     * Картинка - бабка при проигрыше
-     */
-    private Bitmap babkaBitmap;
-
-    /**
-     * Для воспроизведении песни Газманова при проигрыше
-     */
-    private MediaPlayer mediaPlayer;
 
     private LevelService levelService = new LevelService();
     private ViewService viewService = new ViewService();
     private BallService ballService = new BallService();
     private MonitoringService monitoringService = new MonitoringService();
+    private FootwearService footwearService = new FootwearService();
+    private EndGameService endGameService = new EndGameService();
 
     public GameScreenView(Context context) {
         super(context);
@@ -65,38 +34,18 @@ public class GameScreenView extends View {
         monitoringService.init();
     }
 
-    private Bitmap getBabkaByDrawable(int drawableBabka){
-        Bitmap scaleBabkaBitmapBitmap = BitmapFactory.decodeResource(getResources(), drawableBabka);
-        return Bitmap.createScaledBitmap(scaleBabkaBitmapBitmap, getWidth() - 50, getHeight() - 150, false);
-    }
-
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
 
-        System.out.println("Screen size:::::::::");
-        System.out.println("DrawingView: H ::::: " + getHeight());
-        System.out.println("DrawingView: W ::::: " + getWidth());
-
-        // prepare images dependencies from level
+        // prepare images dependencies from levelHandler
         levelHandler();
 
         monitoringService.loadImages(getResources(), getWidth(), getHeight());
-        babkaBitmap = getBabkaByDrawable(R.drawable.babka);
-
-        ballService.load(getWidth(), getHeight(), ballBitmap.getWidth(), ballBitmap.getHeight());
-
-        mediaPlayer = MediaPlayer.create(getContext().getApplicationContext(), R.raw.gazmanchic);
+        endGameService.load(getContext().getApplicationContext(), getResources(), getWidth(), getHeight());
+        ballService.load(getWidth(), getHeight());
 
         setPadding(0, 0, 0, 0);
-    }
-
-    /**
-     * Если нужно остановить музыку Газманова
-     */
-    protected void onClose() {
-        mediaPlayer.stop();
-        mediaPlayer.release();
     }
 
     public boolean onTouchEvent(MotionEvent event) {
@@ -104,43 +53,32 @@ public class GameScreenView extends View {
             return true;
         }
 
-        float currentActionY = event.getY();
-        float currentActionX = event.getX();
+        float clickX = event.getX();
+        float clickY = event.getY();
 
         System.out.println("Click :::::: X: %s ; Y: %s");
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN: {
 
-                if (ballService.isClickOnBall(currentActionX, currentActionY,
-                        ballBitmap.getWidth(), ballBitmap.getHeight())) {
+                if (ballService.isClickOnBall(clickX, clickY)) {
 
                     levelHandler();
 
                     monitoringService.pushed();
-                    ballService.push(currentActionX, currentActionY);
+                    ballService.push(clickX, clickY);
 
-                    currentAngleBashmak = startAngleBashmak;
-
-                    // calculate action by X
-                    currentXBashmak = currentActionX;
-                    currentYBashmak = currentActionY;
-
-                    endXBashmak = currentActionX + pathX;
-
-                    isBashmakInAction = true;
-
-
+                    footwearService.push(clickX, clickY);
                     ballService.printInfo();
                 } else {
                     monitoringService.ballMissed();
-                    isBashmakInAction = false;
+                    footwearService.missed();
                 }
             }
             break;
 
             case MotionEvent.ACTION_MOVE: {
-                this.x = (int) currentActionX;
-                this.y = (int) currentActionY;
+                this.x = (int) clickX;
+                this.y = (int) clickY;
 
                 invalidate();
             }
@@ -148,8 +86,8 @@ public class GameScreenView extends View {
             break;
             case MotionEvent.ACTION_UP:
 
-                this.x = (int) currentActionX;
-                this.y = (int) currentActionY;
+                this.x = (int) clickX;
+                this.y = (int) clickY;
                 System.out.println(".................." + this.x + "......" + this.y); //x= 345 y=530
                 invalidate();
                 break;
@@ -159,72 +97,44 @@ public class GameScreenView extends View {
 
     private void levelHandler() {
         Level level = levelService.changeLevel(monitoringService.getPushedCount());
-        ballBitmap = viewService.getBallByDrawable(level.getImageBall(), getResources());
-        footwearBitmap = viewService.getFootwearByDrawable(level.getImageFootwear(), getResources());
-        pathX = footwearBitmap.getWidth();
+        ballService.setBallBitmap(viewService.getBallByDrawable(level.getImageBall(), getResources()));
+        footwearService.setFootwearBitmap(viewService.getFootwearByDrawable(level.getImageFootwear(), getResources()));
     }
 
     @Override
     public void onDraw(Canvas canvas) {
-        System.out.println("currentLevel: " + levelService.getCurrentLevel());
+        Paint paint = makePaint();
+
+        // Проверка окончания игры
+        if (monitoringService.isMaxMissCount()) {
+            endGameService.show(canvas, paint);
+            return;
+        }
+
+        // если мячик прыгает
+        if (ballService.getBallStatus().isJumped()) {
+            ballService.printInfo();
+            ballService.draw(monitoringService.getPushedCount());
+        }
+
+        ballService.drawBall(canvas, paint, ballService.getBallBitmap(), monitoringService.getPushedCount());
+
+        // рисуем удар ботинком
+        footwearService.draw(canvas, paint, this.x, this.y);
+
+        // рисуем информациб об игре
+        monitoringService.drawInfo(monitoringService.getPushedCount(), canvas, paint);
+
+        // Call the next frame.
+        invalidate();
+    }
+
+    @NonNull
+    private Paint makePaint() {
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
         paint.setColor(Color.BLACK);
         paint.setTextSize(34);
-
-        // check end
-        if (monitoringService.isMaxMissCount()) {
-            canvas.drawText("Ты просрал", 10, 50, paint);
-            canvas.save(); //Save the position of the canvas.
-            canvas.drawBitmap(babkaBitmap, 10, 100, paint); //Draw the ball on the rotated canvas.
-            canvas.restore(); //Rotate the canvas back so that it looks like ball has rotated.
-            if (mediaPlayer != null) {
-                mediaPlayer.start();
-            }
-            return;
-        }
-
-        if (ballService.getBallStatus().isJumped()) {
-            ballService.printInfo();
-
-
-            ballService.draw(monitoringService.getPushedCount());
-        }
-
-        ballService.drawBall(canvas, paint, ballBitmap, monitoringService.getPushedCount());
-
-        // success play
-        if (isBashmakInAction &&
-                startAngleBashmak >= currentAngleBashmak &&
-                currentAngleBashmak >= endAngleBashmak
-                ) {
-            drawBashmak(canvas, paint);
-        }
-
-        monitoringService.drawInfo(monitoringService.getPushedCount(), canvas, paint);
-
-        //Call the next frame.
-        invalidate();
-    }
-
-    private void drawBashmak(Canvas canvas, Paint paint) {
-        if (currentXBashmak == 0 || currentYBashmak == 0) {
-            System.err.printf("currentXBashmak == %s || currentYBashmak == %s", currentXBashmak, currentYBashmak);
-            return;
-        }
-
-        if (currentXBashmak >= endXBashmak) {
-            System.out.println("End draw bashmak");
-            isBashmakInAction = false;
-            return;
-        }
-
-        canvas.save(); //Save the position of the canvas.
-        canvas.rotate(currentAngleBashmak, x - 150, y - 150); //Rotate the canvas.
-        canvas.drawBitmap(footwearBitmap, currentXBashmak - 75, currentYBashmak - 75, paint); //Draw the ball on the rotated canvas.
-        canvas.restore(); //Rotate the canvas back so that it looks like ball has rotated.
-
-        currentAngleBashmak -= 4;
-        currentXBashmak++;
+        return paint;
     }
 }

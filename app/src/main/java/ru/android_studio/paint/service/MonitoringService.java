@@ -96,6 +96,10 @@ public class MonitoringService {
     }
 
     public void loadImages(Resources resources, int width, int height) {
+        System.out.println("Screen size:::::::::");
+        System.out.println("DrawingView: H ::::: " + height);
+        System.out.println("DrawingView: W ::::: " + width);
+
         Bitmap scaleTractoristoBitmap = BitmapFactory.decodeResource(resources, R.drawable.tractoristo300);
         petrosyan300 = Bitmap.createScaledBitmap(scaleTractoristoBitmap, width - 50, height - 150, false);
     }
