@@ -56,7 +56,6 @@ public class GameScreenView extends View {
         float clickX = event.getX();
         float clickY = event.getY();
 
-        System.out.println("Click :::::: X: %s ; Y: %s");
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN: {
 
@@ -73,25 +72,20 @@ public class GameScreenView extends View {
                     monitoringService.ballMissed();
                     footwearService.missed();
                 }
-            }
-            break;
-
-            case MotionEvent.ACTION_MOVE: {
-                this.x = (int) clickX;
-                this.y = (int) clickY;
-
-                invalidate();
-            }
-
-            break;
-            case MotionEvent.ACTION_UP:
-
-                this.x = (int) clickX;
-                this.y = (int) clickY;
-                System.out.println(".................." + this.x + "......" + this.y); //x= 345 y=530
-                invalidate();
                 break;
+            }
+            case MotionEvent.ACTION_MOVE : {
+                this.x = (int) clickX;
+                this.y = (int) clickY;
+                break;
+            }
+            case MotionEvent.ACTION_UP: {
+                this.x = (int) clickX;
+                this.y = (int) clickY;
+                break;
+            }
         }
+        invalidate();
         return true;
     }
 

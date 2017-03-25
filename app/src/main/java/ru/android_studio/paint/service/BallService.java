@@ -140,7 +140,7 @@ public class BallService {
         int intBallY = (int) this.ballY;
         int intBallEndY = (int) this.ballEndY;
 
-        int speed = speedService.getSpeed(pushedCount);
+        int speed = speedService.getSpeed(pushedCount, ballStatus);
 
         if (intBallEndY > intBallY && ballStatus == BallStatus.JUMP_UP) {
             System.out.println("Y UP");
