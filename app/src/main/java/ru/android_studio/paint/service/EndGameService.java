@@ -18,24 +18,40 @@ public class EndGameService {
      * Картинка - бабка при проигрыше
      */
     private Bitmap babkaBitmap;
+    /**
+     * Картинка - бабка при проигрыше
+     */
+    private Bitmap cupBitmap;
 
     private AudioService audioService = new AudioService();
 
     private Bitmap getBabkaByDrawable(int drawableBabka, Resources resources, int width, int height) {
-        Bitmap scaleBabkaBitmapBitmap = BitmapFactory.decodeResource(resources, drawableBabka);
-        return Bitmap.createScaledBitmap(scaleBabkaBitmapBitmap, width - 50, height - 150, false);
+        Bitmap scaleBabkaBitmap = BitmapFactory.decodeResource(resources, drawableBabka);
+        return Bitmap.createScaledBitmap(scaleBabkaBitmap, width - 50, height - 150, false);
+    }
+
+    private Bitmap getCupByDrawable(int drawableBabka, Resources resources, int width, int height) {
+        Bitmap cupBitmap = BitmapFactory.decodeResource(resources, drawableBabka);
+        return Bitmap.createScaledBitmap(cupBitmap, width - 50, height - 150, false);
     }
 
     public void load(Context applicationContext, Resources resources, int width, int height) {
         babkaBitmap = getBabkaByDrawable(R.drawable.babka, resources, width, height);
+        cupBitmap = getCupByDrawable(R.drawable.win, resources, width, height);
         audioService.load(applicationContext);
     }
 
     public void show(Canvas canvas, Paint paint) {
-        canvas.drawText("Ты просрал", 10, 50, paint);
         canvas.save(); //Save the position of the canvas.
         canvas.drawBitmap(babkaBitmap, 10, 100, paint); //Draw the ball on the rotated canvas.
         canvas.restore(); //Rotate the canvas back so that it looks like ball has rotated.
-        audioService.start();
+        audioService.failed();
+    }
+
+    public void win(Canvas canvas, Paint paint) {
+        canvas.save(); //Save the position of the canvas.
+        canvas.drawBitmap(cupBitmap, 10, 100, paint); //Draw the ball on the rotated canvas.
+        canvas.restore(); //Rotate the canvas back so that it looks like ball has rotated.
+        audioService.win(); // изменить звук
     }
 }

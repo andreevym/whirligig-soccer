@@ -8,7 +8,7 @@ import ru.android_studio.paint.model.Level;
 
 public class LevelService {
 
-    private static Level currentLevel = Level.SCHOOLBOY;
+    private static Level currentLevel = Level.LEVEL_1;
 
     public Level getCurrentLevel() {
         System.out.println("getCurrentLevel");

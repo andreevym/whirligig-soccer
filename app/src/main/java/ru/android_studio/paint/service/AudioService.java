@@ -12,28 +12,50 @@ import ru.android_studio.paint.R;
 public class AudioService {
 
     /**
-     * Для воспроизведении песни Газманова при проигрыше
+     * Газманов -
      */
-    private MediaPlayer mediaPlayer;
+    private MediaPlayer failedMediaPlayer;
+    /**
+     * Queen - We Are The Champions
+     */
+    private MediaPlayer winMediaPlayer;
 
 
     public void load(Context applicationContext) {
-        mediaPlayer = MediaPlayer.create(applicationContext, R.raw.gazmanchic);
+        failedMediaPlayer = MediaPlayer.create(applicationContext, R.raw.gazmanchic);
+        winMediaPlayer = MediaPlayer.create(applicationContext, R.raw.quennwearethechampions);
     }
 
     /**
-     * Если нужно остановить музыку Газманова
+     * Если нужно остановить музыку
      */
     protected void onClose() {
-        if(mediaPlayer != null) {
-            mediaPlayer.stop();
-            mediaPlayer.release();
+        if(failedMediaPlayer != null) {
+            failedMediaPlayer.stop();
+            failedMediaPlayer.release();
+        }
+
+        if(winMediaPlayer != null) {
+            winMediaPlayer.stop();
+            winMediaPlayer.release();
         }
     }
 
-    public void start() {
-        if (mediaPlayer != null) {
-            mediaPlayer.start();
+    /**
+     * Музыка поражения
+     */
+    public void failed() {
+        if (failedMediaPlayer != null) {
+            failedMediaPlayer.start();
+        }
+    }
+
+    /**
+     * Музыка победы
+     */
+    public void win() {
+        if (winMediaPlayer != null) {
+            winMediaPlayer.start();
         }
     }
 }

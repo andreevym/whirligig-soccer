@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 
 import ru.android_studio.paint.model.BallStatus;
-import ru.android_studio.paint.model.Level;
 
 /**
  * Управление мячом
@@ -86,6 +85,21 @@ public class BallService {
             } else {
                 canvas.rotate(lastAngle, ballX, ballY);
             }
+
+            int halfOfWidth = ballBitmap.getWidth() / 2;
+            int halfOfHeight = ballBitmap.getWidth() / 2;
+            float cx = ballX + halfOfWidth;
+            float cy = ballY + halfOfHeight;
+            int radius = ballBitmap.getWidth() / 2;
+            //canvas.drawCircle(cx, cy, radius, paint); //Draw the ball on the rotated canvas.
+
+//            canvas.drawArc(
+//                    cx - radius,
+//                    cy + radius,
+//                    cx + radius,
+//                    cy - radius,
+//                    90, 102, true, paint);
+
             canvas.drawBitmap(ballBitmap, ballX, ballY, paint); //Draw the ball on the rotated canvas.
             canvas.restore(); //Rotate the canvas back so that it looks like ball has rotated.
         }

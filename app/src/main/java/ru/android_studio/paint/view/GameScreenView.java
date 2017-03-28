@@ -18,6 +18,9 @@ import ru.android_studio.paint.service.ViewService;
 
 public class GameScreenView extends View {
 
+    float pushX;
+    float pushY;
+
     float x, y;
 
     private LevelService levelService = new LevelService();
@@ -60,7 +63,8 @@ public class GameScreenView extends View {
             case MotionEvent.ACTION_DOWN: {
 
                 if (ballService.isClickOnBall(clickX, clickY)) {
-
+                    pushX = clickX;
+                    pushY = clickY;
                     levelHandler();
 
                     monitoringService.pushed();
@@ -98,10 +102,19 @@ public class GameScreenView extends View {
     @Override
     public void onDraw(Canvas canvas) {
         Paint paint = makePaint();
+        Paint levelPaint = makeLevelPaint();
+        Paint backgroundLevelPaint = makeBackgroundLevelPaint();
+        Paint numberLevelPaint = makeNumberLevelPaint();
 
-        // Проверка окончания игры
+        // Проверка окончания игры - Поражение
         if (monitoringService.isMaxMissCount()) {
             endGameService.show(canvas, paint);
+            return;
+        }
+
+        // Проверка окончания игры - Победа
+        if (levelService.getCurrentLevel() == Level.END) {
+            endGameService.win(canvas, paint);
             return;
         }
 
@@ -116,11 +129,36 @@ public class GameScreenView extends View {
         // рисуем удар ботинком
         footwearService.draw(canvas, paint, this.x, this.y);
 
+        if(pushX != 0 || pushY != 0) {
+            double tan = Math.tan(pushY / pushX);
+            canvas.drawText(String.format("tan: %s, pushX: %s, pushY: %s", tan, pushX, pushY), 10, 250, paint);
+        }
+
         // рисуем информациб об игре
         monitoringService.drawInfo(monitoringService.getPushedCount(), canvas, paint);
+        monitoringService.drawLevel(canvas, paint, levelService.getCurrentLevel());
+
+        monitoringService.drawLevelInfo(monitoringService.getPushedCount(), levelService.getCurrentLevel(), canvas, numberLevelPaint, levelPaint, backgroundLevelPaint);
 
         // Call the next frame.
         invalidate();
+    }
+//German
+    private Paint makeBackgroundLevelPaint() {
+        Paint paint = new Paint();
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setColor(Color.LTGRAY);
+        paint.setStrokeWidth(STROKE_WIDTH);
+        paint.setTextSize(34);
+        return paint;
+    }
+
+    private Paint makeNumberLevelPaint() {
+        Paint paint = new Paint();
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setColor(Color.BLUE);
+        paint.setTextSize(34);
+        return paint;
     }
 
     @NonNull
@@ -128,6 +166,18 @@ public class GameScreenView extends View {
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
         paint.setColor(Color.BLACK);
+        paint.setTextSize(34);
+        return paint;
+    }
+
+    private static final int STROKE_WIDTH = 12;
+
+    @NonNull
+    private Paint makeLevelPaint() {
+        Paint paint = new Paint();
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setColor(Color.GREEN);
+        paint.setStrokeWidth(STROKE_WIDTH);
         paint.setTextSize(34);
         return paint;
     }

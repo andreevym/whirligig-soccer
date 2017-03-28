@@ -7,25 +7,27 @@ import ru.android_studio.paint.R;
  */
 
 public enum Level {
-    SCHOOLBOY("Уровень 1 школьник - пинает хуй", 0, R.drawable.football, R.drawable.bashmak),
-    LEVEL_1("LEVEL", 2, R.drawable.football, R.drawable.bashmak),
-    LEVEL_2("басота - босоногий мальчуган", 5, R.drawable.football, R.drawable.bashmak),
-    LEVEL_3("носки", 7, R.drawable.football, R.drawable.bashmak),
-    LEVEL_4("равные кеды", 10, R.drawable.football, R.drawable.bashmak),
-    LEVEL_5("кеды", 14, R.drawable.football, R.drawable.bashmak),
-    LEVEL_6("буцы", 16, R.drawable.football, R.drawable.bashmak),
-    RONALDO("Уровень 3 роналдо - золотая буца", 20, R.drawable.football, R.drawable.bashmak),
-    MESSI("Уровень 4 Месси - золотой мяч", 25, R.drawable.football, R.drawable.bashmak),
-    ZIDAN("Уровнеь 5 Зидан бьет головой Матерацци", 27, R.drawable.football, R.drawable.bashmak),
-    UNKNOWN("UNKNOWN", -1, R.drawable.football, R.drawable.bashmak);
+    //SCHOOLBOY("Школьник", 0, R.drawable.football, R.drawable.bashmak),
+    LEVEL_1(1, "Босоногий мальчуган", 3, R.drawable.football, R.drawable.bashmak),
+    LEVEL_2(2, "Носки", 7, R.drawable.football, R.drawable.bashmak),
+    LEVEL_3(3, "Равные кеды", 10, R.drawable.football, R.drawable.bashmak),
+    LEVEL_4(4, "Кеды", 14, R.drawable.football, R.drawable.bashmak),
+    LEVEL_5(5, "Буцы", 16, R.drawable.football, R.drawable.bashmak),
+    RONALDO(6, "Роналдо", 20, R.drawable.football, R.drawable.bashmak),
+    MESSI(7, "Месси", 25, R.drawable.football, R.drawable.bashmak),
+    ZIDAN(8, "Зидан", 27, R.drawable.football, R.drawable.bashmak),
+    END(9, "end", 30, R.drawable.football, R.drawable.bashmak),
+    UNKNOWN(-1, "UNKNOWN", -1, R.drawable.football, R.drawable.bashmak);
 
     final String title;
     final int pushCount;
 
     final int imageBall;
     final int imageFootwear;
+    final int number;
 
-    Level(String title, int pushCount, int imageBall, int imageFootwear) {
+    Level(int number, String title, int pushCount, int imageBall, int imageFootwear) {
+        this.number = number;
         this.title = title;
         this.pushCount = pushCount;
         this.imageBall = imageBall;
@@ -46,5 +48,16 @@ public enum Level {
 
     public String getTitle() {
         return title;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public Level getNextLevel() {
+        Level level = values()[ordinal() + 1];
+        System.out.println("NEXT LEVEL: " + level.getTitle());
+        System.out.println("NEXT LEVEL pushCount: " + level.getPushCount());
+        return level;
     }
 }

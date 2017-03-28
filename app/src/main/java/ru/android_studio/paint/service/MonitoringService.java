@@ -5,8 +5,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.RectF;
 
 import ru.android_studio.paint.R;
+import ru.android_studio.paint.model.Level;
 
 /**
  * Created by yuryandreev on 24/03/2017.
@@ -102,5 +104,44 @@ public class MonitoringService {
 
         Bitmap scaleTractoristoBitmap = BitmapFactory.decodeResource(resources, R.drawable.tractoristo300);
         petrosyan300 = Bitmap.createScaledBitmap(scaleTractoristoBitmap, width - 50, height - 150, false);
+    }
+
+    public void drawLevelInfo(float pushedCount, Level currentLevel, Canvas canvas, Paint numberLevelPaint, Paint levelPaint, Paint backgroundLevelPaint) {
+        if(currentLevel == Level.END) {
+            return;
+        }
+
+        Level nextLevel = currentLevel.getNextLevel();
+
+        RectF mRect = new RectF(250, 0, 350, 100);
+
+        float nextPushCount = nextLevel.getPushCount();
+        System.out.println("pushCount: " + nextPushCount);
+        float onePercentPushCount = (nextPushCount - currentLevel.getPushCount()) / 100;
+
+        System.out.println("one Percent Push Count: " + onePercentPushCount);
+        float currentLevelPastPercent = (currentLevel.getPushCount() - pushedCount) / onePercentPushCount;
+
+        float onePercentGradus = 3.6f;
+        float result = currentLevelPastPercent * onePercentGradus;
+
+        // 360 градусов = 100 %
+        // 3.6 градуса = 1%
+        // 21/19 жк
+
+        int showLevel = currentLevel.getNumber();
+
+        canvas.drawArc(mRect, 0, 360, true, backgroundLevelPaint);
+        int needPushCount = (int) (nextPushCount - pushedCount);
+        if(needPushCount == 0) {
+            showLevel = currentLevel.getNextLevel().getNumber();// (int) (nextLevel.getNextLevel().getPushCount() - pushedCount);
+        } else {
+            canvas.drawArc(mRect, 270, result, false, levelPaint);
+        }
+        canvas.drawText(String.valueOf(showLevel), mRect.centerX() - 18, mRect.centerY() + 15, numberLevelPaint);
+    }
+
+    public void drawLevel(Canvas canvas, Paint paint, Level currentLevel) {
+        canvas.drawText(currentLevel.getTitle(), 10, 150, paint);
     }
 }

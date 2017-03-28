@@ -13,8 +13,6 @@
         <item name="android:background">@drawable/background_splash</item>
     </style>
 
-    <style name="MyAnimation" />
-
     <style name="MyAnimation.Window" parent="@android:style/Animation.Dialog">
         <item name="android:windowEnterAnimation">@anim/enter_from_top</item>
         <item name="android:windowExitAnimation">@anim/exit_to_bottom</item>
