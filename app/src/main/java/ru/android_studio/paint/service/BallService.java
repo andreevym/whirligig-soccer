@@ -33,11 +33,11 @@ public class BallService {
     /**
      * На сколько предмет должен подняться вверх по Y
      */
-    private float ballJumpHeightY = 10;
+    private float ballJumpHeightY = 1;
     /**
      * На сколько предмет должен подвинуться вправо по X
      */
-    private float ballJumpHeightX = 10;
+    private float ballJumpHeightX = 1;
 
     /**
      * Статус объекта который пинаем на текущий момент

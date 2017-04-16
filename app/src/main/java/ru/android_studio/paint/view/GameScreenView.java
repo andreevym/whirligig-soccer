@@ -129,11 +129,6 @@ public class GameScreenView extends View {
         // рисуем удар ботинком
         footwearService.draw(canvas, paint, this.x, this.y);
 
-        if(pushX != 0 || pushY != 0) {
-            double tan = Math.tan(pushY / pushX);
-            canvas.drawText(String.format("tan: %s, pushX: %s, pushY: %s", tan, pushX, pushY), 10, 250, paint);
-        }
-
         // рисуем информациб об игре
         monitoringService.drawInfo(monitoringService.getPushedCount(), canvas, paint);
         monitoringService.drawLevel(canvas, paint, levelService.getCurrentLevel());
