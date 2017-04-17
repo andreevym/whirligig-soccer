@@ -18,11 +18,11 @@ import ru.android_studio.paint.service.ViewService;
 
 public class GameScreenView extends View {
 
-    float pushX;
-    float pushY;
-
+    private static final int STROKE_WIDTH = 12;
+    float pushX = -1f;
+    float pushY = -1f;
     float x, y;
-
+    private boolean isPushDebugEnable = true;
     private LevelService levelService = new LevelService();
     private ViewService viewService = new ViewService();
     private BallService ballService = new BallService();
@@ -78,7 +78,7 @@ public class GameScreenView extends View {
                 }
                 break;
             }
-            case MotionEvent.ACTION_MOVE : {
+            case MotionEvent.ACTION_MOVE: {
                 this.x = (int) clickX;
                 this.y = (int) clickY;
                 break;
@@ -119,26 +119,75 @@ public class GameScreenView extends View {
         }
 
         // если мячик прыгает
-        if (ballService.getBallStatus().isJumped()) {
-            ballService.printInfo();
-            ballService.draw(monitoringService.getPushedCount());
+        if (!isPushDebugEnable) {
+            if (ballService.getBallStatus().isJumped()) {
+                ballService.printInfo();
+                ballService.draw(monitoringService.getPushedCount());
+            }
         }
 
         ballService.drawBall(canvas, paint, ballService.getBallBitmap(), monitoringService.getPushedCount());
 
         // рисуем удар ботинком
-        footwearService.draw(canvas, paint, this.x, this.y);
-
+        if (!isPushDebugEnable) {
+            footwearService.draw(canvas, paint, this.x, this.y);
+        }
         // рисуем информациб об игре
         monitoringService.drawInfo(monitoringService.getPushedCount(), canvas, paint);
         monitoringService.drawLevel(canvas, paint, levelService.getCurrentLevel());
 
         monitoringService.drawLevelInfo(monitoringService.getPushedCount(), levelService.getCurrentLevel(), canvas, numberLevelPaint, levelPaint, backgroundLevelPaint);
 
+
+        if (isPushDebugEnable) {
+            Paint debugPushPointPaint = makeDebugPushPointPaint();
+            if (pushX != -1f && pushY != -1f) {
+                canvas.drawPoint(pushX, pushY, debugPushPointPaint);
+                float cx = ballService.getBallCX();
+                float cy = ballService.getBallCY();
+                // нарисовать центр
+                canvas.drawPoint(cx, cy, debugPushPointPaint);
+
+                float diffX = cx - pushX;
+                float diffY = cy - pushY;
+
+                float tangF = diffY / diffX;
+                if (tangF > 0) tangF *= -1;
+
+                canvas.drawText("diffX: " + diffX, 10, 250, paint);
+                canvas.drawText("diffY: " + diffY, 10, 300, paint);
+                canvas.drawText("tangF: " + tangF, 10, 350, paint);
+                canvas.drawText("cx: " + cx, 10, 400, paint);
+                canvas.drawText("cy: " + cy, 10, 450, paint);
+                canvas.drawText("pushX: " + pushX, 10, 500, paint);
+                canvas.drawText("pushY: " + pushY, 10, 550, paint);
+                for (int i = 0; i < 200; i++) {
+                    float nextX;
+                    float nextY;
+                    if (diffX < 0) {
+                        nextX = cx + diffX - i;
+                    } else {
+                        nextX = cx + diffX + i;
+                    }
+
+                    if (diffY > 0) {
+                        nextY = cy + diffY - (i * tangF);
+                    } else {
+                        nextY = cy + diffY + (i * tangF);
+                    }
+
+                    canvas.drawPoint(nextX, nextY, debugPushPointPaint);
+                }
+                // нарисовать направление полёта
+                canvas.drawPoint(cx + diffX, cy + diffY, debugPushPointPaint);
+            }
+        }
+
         // Call the next frame.
         invalidate();
     }
-//German
+
+    //German
     private Paint makeBackgroundLevelPaint() {
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
@@ -165,8 +214,6 @@ public class GameScreenView extends View {
         return paint;
     }
 
-    private static final int STROKE_WIDTH = 12;
-
     @NonNull
     private Paint makeLevelPaint() {
         Paint paint = new Paint();
@@ -174,6 +221,16 @@ public class GameScreenView extends View {
         paint.setColor(Color.GREEN);
         paint.setStrokeWidth(STROKE_WIDTH);
         paint.setTextSize(34);
+        return paint;
+    }
+
+    @NonNull
+    private Paint makeDebugPushPointPaint() {
+        Paint paint = new Paint();
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setColor(Color.RED);
+        paint.setStrokeWidth(STROKE_WIDTH);
+        paint.setTextSize(50);
         return paint;
     }
 }

@@ -31,6 +31,15 @@ public class BallService {
     float ballY;
 
     /**
+     * Центр мяча X
+     */
+    float ballCX;
+    /**
+     * Центр мяча Y
+     */
+    float ballCY;
+
+    /**
      * На сколько предмет должен подняться вверх по Y
      */
     private float ballJumpHeightY = 1;
@@ -90,6 +99,10 @@ public class BallService {
             int halfOfHeight = ballBitmap.getWidth() / 2;
             float cx = ballX + halfOfWidth;
             float cy = ballY + halfOfHeight;
+
+            ballCX = ballX + halfOfWidth;
+            ballCY = ballY + halfOfHeight;
+
             int radius = ballBitmap.getWidth() / 2;
             //canvas.drawCircle(cx, cy, radius, paint); //Draw the ball on the rotated canvas.
 
@@ -103,6 +116,14 @@ public class BallService {
             canvas.drawBitmap(ballBitmap, ballX, ballY, paint); //Draw the ball on the rotated canvas.
             canvas.restore(); //Rotate the canvas back so that it looks like ball has rotated.
         }
+    }
+
+    public float getBallCX() {
+        return ballCX;
+    }
+
+    public float getBallCY() {
+        return ballCY;
     }
 
     public void load(int width, int height){
