@@ -152,7 +152,9 @@ public class GameScreenView extends View {
                 float diffY = cy - pushY;
 
                 float tangF = diffY / diffX;
-                if (tangF > 0) tangF *= -1;
+                if (tangF > 0) {
+                    tangF *= -1;
+                }
 
                 canvas.drawText("diffX: " + diffX, 10, 250, paint);
                 canvas.drawText("diffY: " + diffY, 10, 300, paint);
@@ -161,22 +163,47 @@ public class GameScreenView extends View {
                 canvas.drawText("cy: " + cy, 10, 450, paint);
                 canvas.drawText("pushX: " + pushX, 10, 500, paint);
                 canvas.drawText("pushY: " + pushY, 10, 550, paint);
-                for (int i = 0; i < 200; i++) {
+
+                canvas.drawText("maxX: " + canvas.getWidth(), 10, 600, paint);
+                canvas.drawText("maxY: " + canvas.getHeight(), 10, 650, paint);
+
+                float prevX = cx + diffX;
+                float prevY = cy + diffY;
+                for (int i = 0; i < 500; i++) {
                     float nextX;
                     float nextY;
+
+                    //направление полёта по горизонтали
                     if (diffX < 0) {
-                        nextX = cx + diffX - i;
+                        nextX = prevX - 1;
                     } else {
-                        nextX = cx + diffX + i;
+                        nextX = prevX + 1;
                     }
 
+                    //направление полёта по вертикали
                     if (diffY > 0) {
-                        nextY = cy + diffY - (i * tangF);
+                        nextY = prevY - tangF;
                     } else {
-                        nextY = cy + diffY + (i * tangF);
+                        nextY = prevY + tangF;
                     }
 
+                    //если уходим за границы экрана??? тогда =>
+//                    if(nextX > canvas.getWidth()) {
+//                        canvas.drawText("maxX: " + canvas.getWidth(), 10, 700, paint);
+//                    }
+
+//                    if(nextY > canvas.getHeight()) {
+//                        canvas.drawText("maxY: " + canvas.getHeight(), 10, 750, paint);
+//                        //направление полёта по вертикали
+//                        nextY += (tangF * 100);
+//                    }
+
+                    // Draw
                     canvas.drawPoint(nextX, nextY, debugPushPointPaint);
+
+                    // After draw
+                    prevX = nextX;
+                    prevY = nextY;
                 }
                 // нарисовать направление полёта
                 canvas.drawPoint(cx + diffX, cy + diffY, debugPushPointPaint);
