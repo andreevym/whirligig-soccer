@@ -178,54 +178,67 @@ public class GameScreenView extends View {
                 int leftBackX = 0;
                 int upY = 0;
                 int downY = 0;
-                for (int i = 0; i < 500; i++) {
+                for (int i = 0; i < 3500; i++) {
                     float nextX;
                     float nextY;
 
                     //направление полёта по горизонтали
                     if (diffX < 0) {
-                        if(rightBackX > 0) {
+                        if (rightBackX > 0) {
                             nextX = prevX + 1;
-                        } else if(leftBackX > 0) {
+                        } else if (leftBackX > 0) {
                             nextX = prevX + 1;
                         } else {
                             nextX = prevX - 1;
                         }
                     } else {
-                        if(rightBackX > 0) {
+                        if (rightBackX > 0) {
                             nextX = prevX - 1;
-                        } else if(leftBackX > 0) {
+                        } else if (leftBackX > 0) {
                             nextX = prevX + 1;
                         } else {
                             nextX = prevX + 1;
                         }
                     }
 
-                    if(nextX > width) {
+                    if (nextX > width) {
                         rightBackX = i;
-                        nextX-=2;
-                    } else if (nextX < 0){
+                        nextX -= 2;
+                    } else if (nextX < 0) {
                         leftBackX = i;
-                        nextX+=2;
+                        nextX += 2;
                     }
 
                     //направление полёта по вертикали
-                    if (diffY > 0) {
-                        nextY = prevY - tangF;
+                    if (diffY < 0) {
+                        nextY = 0;//prevY + tangF;
+
+//                        if (downY > 0) {
+//                            nextY = prevY - tangF;
+//                        }
+//
+//                        if (upY > 0) {
+//                            nextY = prevY + tangF;
+//                        }
                     } else {
-                        nextY = prevY + tangF;
+                        nextY = prevY - tangF;
+
+                        if (downY > 0) {
+                            nextY = prevY + tangF;
+                        }
+
+                        if (upY > 0) {
+                            nextY = prevY - tangF;
+                        }
                     }
 
-                    //если уходим за границы экрана??? тогда =>
-//                    if(nextX > canvas.getWidth()) {
-//                        canvas.drawText("maxX: " + canvas.getWidth(), 10, 700, paint);
-//                    }
-
-//                    if(nextY > canvas.getHeight()) {
-//                        canvas.drawText("maxY: " + canvas.getHeight(), 10, 750, paint);
-//                        //направление полёта по вертикали
-//                        nextY += (tangF * 100);
-//                    }
+                    if (nextY > height) {
+                        downY = i;
+                        upY = 0;
+                    } else if (nextY < 0) {
+                        upY = i;
+                        downY = 0;
+                    }
 
                     // Draw
                     canvas.drawPoint(nextX, nextY, debugPushPointPaint);
