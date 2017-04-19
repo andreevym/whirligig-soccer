@@ -1,7 +1,9 @@
 package ru.android_studio.paint.activity;
 
 import android.app.Activity;
+import android.graphics.Point;
 import android.os.Bundle;
+import android.view.Display;
 
 import ru.android_studio.paint.view.GameScreenView;
 
@@ -16,7 +18,13 @@ public class GameActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        GameScreenView dv = new GameScreenView(this);
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x;
+        int height = size.y;
+
+        GameScreenView dv = new GameScreenView(this, width, height);
         setContentView(dv);
     }
 }

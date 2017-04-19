@@ -29,9 +29,14 @@ public class GameScreenView extends View {
     private MonitoringService monitoringService = new MonitoringService();
     private FootwearService footwearService = new FootwearService();
     private EndGameService endGameService = new EndGameService();
+    private int width;
+    private int height;
 
-    public GameScreenView(Context context) {
+    public GameScreenView(Context context, int width, int height) {
         super(context);
+
+        this.width = width;
+        this.height = height;
 
         ballService.init();
         monitoringService.init();
@@ -169,15 +174,39 @@ public class GameScreenView extends View {
 
                 float prevX = cx + diffX;
                 float prevY = cy + diffY;
+                int rightBackX = 0;
+                int leftBackX = 0;
+                int upY = 0;
+                int downY = 0;
                 for (int i = 0; i < 500; i++) {
                     float nextX;
                     float nextY;
 
                     //направление полёта по горизонтали
                     if (diffX < 0) {
-                        nextX = prevX - 1;
+                        if(rightBackX > 0) {
+                            nextX = prevX + 1;
+                        } else if(leftBackX > 0) {
+                            nextX = prevX + 1;
+                        } else {
+                            nextX = prevX - 1;
+                        }
                     } else {
-                        nextX = prevX + 1;
+                        if(rightBackX > 0) {
+                            nextX = prevX - 1;
+                        } else if(leftBackX > 0) {
+                            nextX = prevX + 1;
+                        } else {
+                            nextX = prevX + 1;
+                        }
+                    }
+
+                    if(nextX > width) {
+                        rightBackX = i;
+                        nextX-=2;
+                    } else if (nextX < 0){
+                        leftBackX = i;
+                        nextX+=2;
                     }
 
                     //направление полёта по вертикали
