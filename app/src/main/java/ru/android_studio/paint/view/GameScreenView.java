@@ -187,14 +187,14 @@ public class GameScreenView extends View {
                         if (rightBackX > 0) {
                             nextX = prevX + 1;
                         } else if (leftBackX > 0) {
-                            nextX = prevX + 1;
-                        } else {
                             nextX = prevX - 1;
+                        } else {
+                            nextX = prevX + 1;
                         }
                     } else {
-                        if (rightBackX > 0) {
+                        if (leftBackX > 0) {
                             nextX = prevX - 1;
-                        } else if (leftBackX > 0) {
+                        } else if (rightBackX > 0) {
                             nextX = prevX + 1;
                         } else {
                             nextX = prevX + 1;
@@ -202,42 +202,44 @@ public class GameScreenView extends View {
                     }
 
                     if (nextX > width) {
-                        rightBackX = i;
-                        nextX -= 2;
-                    } else if (nextX < 0) {
                         leftBackX = i;
-                        nextX += 2;
+//                        nextX -= 2;
+                        rightBackX = 0;
+                    } else if (nextX < 0) {
+                        rightBackX = i;
+//                        nextX += 2;
+                        leftBackX = 0;
                     }
 
                     //направление полёта по вертикали
                     if (diffY < 0) {
-                        nextY = 0;//prevY + tangF;
+                        nextY = prevY + tangF;
 
-//                        if (downY > 0) {
-//                            nextY = prevY - tangF;
-//                        }
-//
-//                        if (upY > 0) {
-//                            nextY = prevY + tangF;
-//                        }
-                    } else {
-                        nextY = prevY - tangF;
-
-                        if (downY > 0) {
+                        if (upY > 0) {
                             nextY = prevY + tangF;
                         }
 
+                        if (downY > 0) {
+                            nextY = prevY - tangF;
+                        }
+                    } else {
+                        nextY = prevY - tangF;
+
                         if (upY > 0) {
+                            nextY = prevY + tangF;
+                        }
+
+                        if (downY > 0) {
                             nextY = prevY - tangF;
                         }
                     }
 
                     if (nextY > height) {
-                        downY = i;
-                        upY = 0;
-                    } else if (nextY < 0) {
                         upY = i;
                         downY = 0;
+                    } else if (nextY < 0) {
+                        downY = i;
+                        upY = 0;
                     }
 
                     // Draw
