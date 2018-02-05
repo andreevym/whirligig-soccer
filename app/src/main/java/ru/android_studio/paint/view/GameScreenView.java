@@ -14,6 +14,7 @@ import ru.android_studio.paint.service.EndGameService;
 import ru.android_studio.paint.service.FootwearService;
 import ru.android_studio.paint.service.LevelService;
 import ru.android_studio.paint.service.MonitoringService;
+import ru.android_studio.paint.service.OneFly;
 import ru.android_studio.paint.service.ViewService;
 
 public class GameScreenView extends View {
@@ -30,13 +31,13 @@ public class GameScreenView extends View {
     private FootwearService footwearService = new FootwearService();
     private EndGameService endGameService = new EndGameService();
     private int width;
-    private int height;
+    private int height; // todo change height because isn't right.
 
     public GameScreenView(Context context, int width, int height) {
         super(context);
 
         this.width = width;
-        this.height = height;
+        this.height = height - 70; // // FIXME: 20/04/2017 hardcode
 
         ballService.init();
         monitoringService.init();
@@ -55,6 +56,8 @@ public class GameScreenView extends View {
 
         setPadding(0, 0, 0, 0);
     }
+
+    private OneFly oneFly;
 
     public boolean onTouchEvent(MotionEvent event) {
         if (monitoringService.isMaxMissCount()) {
@@ -77,6 +80,9 @@ public class GameScreenView extends View {
 
                     footwearService.push(clickX, clickY);
                     ballService.printInfo();
+
+                    oneFly = new OneFly(width, height);
+                    oneFly.push(ballService.getBallCX(), ballService.getBallCY(), pushX, pushY);
                 } else {
                     monitoringService.ballMissed();
                     footwearService.missed();
@@ -145,117 +151,128 @@ public class GameScreenView extends View {
 
 
         if (isPushDebugEnable) {
-            Paint debugPushPointPaint = makeDebugPushPointPaint();
-            if (pushX != -1f && pushY != -1f) {
-                canvas.drawPoint(pushX, pushY, debugPushPointPaint);
-                float cx = ballService.getBallCX();
-                float cy = ballService.getBallCY();
-                // нарисовать центр
-                canvas.drawPoint(cx, cy, debugPushPointPaint);
+            pushLine(canvas, paint);
+        }
 
-                float diffX = cx - pushX;
-                float diffY = cy - pushY;
-
-                float tangF = diffY / diffX;
-                if (tangF > 0) {
-                    tangF *= -1;
-                }
-
-                canvas.drawText("diffX: " + diffX, 10, 250, paint);
-                canvas.drawText("diffY: " + diffY, 10, 300, paint);
-                canvas.drawText("tangF: " + tangF, 10, 350, paint);
-                canvas.drawText("cx: " + cx, 10, 400, paint);
-                canvas.drawText("cy: " + cy, 10, 450, paint);
-                canvas.drawText("pushX: " + pushX, 10, 500, paint);
-                canvas.drawText("pushY: " + pushY, 10, 550, paint);
-
-                canvas.drawText("maxX: " + canvas.getWidth(), 10, 600, paint);
-                canvas.drawText("maxY: " + canvas.getHeight(), 10, 650, paint);
-
-                float prevX = cx + diffX;
-                float prevY = cy + diffY;
-                int rightBackX = 0;
-                int leftBackX = 0;
-                int upY = 0;
-                int downY = 0;
-                for (int i = 0; i < 3500; i++) {
-                    float nextX;
-                    float nextY;
-
-                    //направление полёта по горизонтали
-                    if (diffX < 0) {
-                        if (rightBackX > 0) {
-                            nextX = prevX + 1;
-                        } else if (leftBackX > 0) {
-                            nextX = prevX - 1;
-                        } else {
-                            nextX = prevX + 1;
-                        }
-                    } else {
-                        if (leftBackX > 0) {
-                            nextX = prevX - 1;
-                        } else if (rightBackX > 0) {
-                            nextX = prevX + 1;
-                        } else {
-                            nextX = prevX + 1;
-                        }
-                    }
-
-                    if (nextX > width) {
-                        leftBackX = i;
-//                        nextX -= 2;
-                        rightBackX = 0;
-                    } else if (nextX < 0) {
-                        rightBackX = i;
-//                        nextX += 2;
-                        leftBackX = 0;
-                    }
-
-                    //направление полёта по вертикали
-                    if (diffY < 0) {
-                        nextY = prevY + tangF;
-
-                        if (upY > 0) {
-                            nextY = prevY + tangF;
-                        }
-
-                        if (downY > 0) {
-                            nextY = prevY - tangF;
-                        }
-                    } else {
-                        nextY = prevY - tangF;
-
-                        if (upY > 0) {
-                            nextY = prevY + tangF;
-                        }
-
-                        if (downY > 0) {
-                            nextY = prevY - tangF;
-                        }
-                    }
-
-                    if (nextY > height) {
-                        upY = i;
-                        downY = 0;
-                    } else if (nextY < 0) {
-                        downY = i;
-                        upY = 0;
-                    }
-
-                    // Draw
-                    canvas.drawPoint(nextX, nextY, debugPushPointPaint);
-
-                    // After draw
-                    prevX = nextX;
-                    prevY = nextY;
-                }
-                // нарисовать направление полёта
-                canvas.drawPoint(cx + diffX, cy + diffY, debugPushPointPaint);
-            }
+        if(oneFly != null) {
+            oneFly.fly(canvas, paint, ballService.getBallBitmap());
         }
 
         // Call the next frame.
         invalidate();
+    }
+
+    private void pushLine(Canvas canvas, Paint paint) {
+        Paint debugPushPointPaint = makeDebugPushPointPaint();
+        if (pushX != -1f && pushY != -1f) {
+            canvas.drawPoint(pushX, pushY, debugPushPointPaint);
+            float cx = ballService.getBallCX();
+            float cy = ballService.getBallCY();
+            // нарисовать центр
+            canvas.drawPoint(cx, cy, debugPushPointPaint);
+
+            float diffX = cx - pushX;
+            float diffY = cy - pushY;
+
+            float tangF = diffY / diffX;
+            if (tangF > 0) {
+                tangF *= -1;
+            }
+
+            float prevX = cx;
+            float prevY = cy;
+            int rightBackX = 0;
+            int leftBackX = 0;
+            int upY = 0;
+            int downY = 0;
+
+//            canvas.drawText("diffX: " + diffX, 10, 250, paint);
+//            canvas.drawText("diffY: " + diffY, 10, 300, paint);
+//            canvas.drawText("tangF: " + tangF, 10, 350, paint);
+//            canvas.drawText("cx: " + cx, 10, 400, paint);
+//            canvas.drawText("cy: " + cy, 10, 450, paint);
+//            canvas.drawText("pushX: " + pushX, 10, 500, paint);
+//            canvas.drawText("pushY: " + pushY, 10, 550, paint);
+//
+//            canvas.drawText("maxX: " + canvas.getWidth(), 10, 600, paint);
+//            canvas.drawText("maxY: " + canvas.getHeight(), 10, 650, paint);
+
+            for (int i = 0; i < 3500; i++) {
+                float nextX;
+                float nextY;
+
+                //направление полёта по горизонтали
+                if (diffX < 0) {
+                    if (rightBackX > 0) {
+                        nextX = prevX + 1;
+                    } else if (leftBackX > 0) {
+                        nextX = prevX - 1;
+                    } else {
+                        nextX = prevX - 1;
+                    }
+                } else {
+                    if (leftBackX > 0) {
+                        nextX = prevX - 1;
+                    } else if (rightBackX > 0) {
+                        nextX = prevX + 1;
+                    } else {
+                        nextX = prevX + 1;
+                    }
+                }
+
+                if (nextX > width) {
+                    leftBackX = i;
+                    rightBackX = 0;
+                    nextX = prevX;
+                } else if (nextX < 0) {
+                    rightBackX = i;
+                    leftBackX = 0;
+                    nextX = prevX;
+                }
+
+                //направление полёта по вертикали
+                if (diffY < 0) {
+                    nextY = prevY + tangF;
+
+                    if (upY > 0) {
+                        nextY = prevY + tangF;
+                    }
+
+                    if (downY > 0) {
+                        nextY = prevY - tangF;
+                    }
+                } else {
+                    nextY = prevY - tangF;
+
+                    if (upY > 0) {
+                        nextY = prevY + tangF;
+                    }
+
+                    if (downY > 0) {
+                        nextY = prevY - tangF;
+                    }
+                }
+
+                if (nextY > height) {
+                    upY = i;
+                    downY = 0;
+                    nextY = prevY;
+                } else if (nextY < 0) {
+                    downY = i;
+                    upY = 0;
+                    nextY = prevY;
+                }
+
+                // Draw
+                canvas.drawPoint(nextX, nextY, debugPushPointPaint);
+
+                // After draw
+                prevX = nextX;
+                prevY = nextY;
+            }
+            // нарисовать направление полёта
+            canvas.drawPoint(cx + diffX, cy + diffY, debugPushPointPaint);
+        }
     }
 
     //German

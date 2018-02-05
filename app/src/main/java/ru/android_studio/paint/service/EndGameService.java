@@ -23,7 +23,7 @@ public class EndGameService {
      */
     private Bitmap cupBitmap;
 
-    private AudioService audioService = new AudioService();
+    //private AudioService audioService = new AudioService();
 
     private Bitmap getBabkaByDrawable(int drawableBabka, Resources resources, int width, int height) {
         Bitmap scaleBabkaBitmap = BitmapFactory.decodeResource(resources, drawableBabka);
@@ -38,20 +38,20 @@ public class EndGameService {
     public void load(Context applicationContext, Resources resources, int width, int height) {
         babkaBitmap = getBabkaByDrawable(R.drawable.babka, resources, width, height);
         cupBitmap = getCupByDrawable(R.drawable.win, resources, width, height);
-        audioService.load(applicationContext);
+        //audioService.load(applicationContext);
     }
 
     public void show(Canvas canvas, Paint paint) {
         canvas.save(); //Save the position of the canvas.
         canvas.drawBitmap(babkaBitmap, 10, 100, paint); //Draw the ball on the rotated canvas.
         canvas.restore(); //Rotate the canvas back so that it looks like ball has rotated.
-        audioService.failed();
+        //audioService.failed();
     }
 
     public void win(Canvas canvas, Paint paint) {
         canvas.save(); //Save the position of the canvas.
         canvas.drawBitmap(cupBitmap, 10, 100, paint); //Draw the ball on the rotated canvas.
         canvas.restore(); //Rotate the canvas back so that it looks like ball has rotated.
-        audioService.win(); // изменить звук
+        //audioService.win(); // изменить звук
     }
 }
